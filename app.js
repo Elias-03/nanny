@@ -1,8 +1,8 @@
 // EmailJS configuration
 const emailjsConfig = {
-    publicKey: 'je55Q8tk2Zal6cXyn',
-    templateId: 'template_cdvh9v2',
-    serviceId: 'clems_nanny'
+    publicKey: 'put here',
+    templateId: 'put here',
+    serviceId: 'put here'
 };
 
 // Firebase is now initialized in each HTML file using ES modules
@@ -144,7 +144,7 @@ requestForm.addEventListener('submit', async function (e) {
             emailjsConfig.serviceId,
             emailjsConfig.templateId,
             {
-                to_email: 'kiraflix.uk@gmail.com',
+                to_email: 'put email here',
                 from_name: formData.name,
                 from_email: formData.email,
                 phone: formData.phone,
