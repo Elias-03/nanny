@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nannies - Bambino Nanny Agency</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Bambino Nanny Agency</div>
+            <div class="mobile-menu">
+                <button id="menu-btn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html" aria-label="Home">Home</a></li>
+                <li><a href="about.html" aria-label="About">About</a></li>
+                <li><a href="nannies.html" class="active" aria-label="Nannies">Nannies</a></li>
+                <li><a href="contact.html" aria-label="Contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="nannies" class="nannies-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Our Nannies</h2>
+                    <p>Meet our professional and experienced childcare providers</p>
+                </div>
+
+                <div class="nanny-filters">
+                    <select id="experience-filter" aria-label="Filter by Experience">
+                        <option value="">All Experience Levels</option>
+                        <option value="1-3">1-3 Years</option>
+                        <option value="4-6">4-6 Years</option>
+                        <option value="7+">7+ Years</option>
+                    </select>
+                    <select id="language-filter" aria-label="Filter by Language">
+                        <option value="">All Languages</option>
+                        <option value="english">English</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="french">French</option>
+                    </select>
+                </div>
+
+                <div id="nanny-cards" class="nanny-cards-container">
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Function to fetch and display nannies from Firestore
+        async function fetchNannies() {
+            const nannyCardsContainer = document.getElementById('nanny-cards');
+            nannyCardsContainer.innerHTML = ''; // Clear existing cards
+
+            const snapshot = await db.collection('nannies').get();
+            snapshot.forEach(doc => {
+                const nanny = doc.data();
+                const card = document.createElement('div');
+                card.className = 'nanny-card';
+                card.innerHTML = `
+                    <img src="${nanny.photo}" alt="${nanny.name}" loading="lazy">
+                    <h3>${nanny.name}</h3>
+                    <p><strong>Experience:</strong> ${nanny.experience} years</p>
+                    <p><strong>Availability:</strong> ${nanny.availability}</p>
+                    <p><strong>Languages:</strong> ${nanny.languages ? nanny.languages.join(', ') : ''}</p>
+                    <p><strong>Bio:</strong> ${nanny.bio}</p>
+                    <button onclick="openRequestForm('${doc.id}', '${nanny.name}')" aria-label="Request Nanny ${nanny.name}">Request this Nanny</button>
+                `;
+                nannyCardsContainer.appendChild(card);
+            });
+        }
+
+        // Call fetchNannies when the page loads
+        window.addEventListener('load', fetchNannies);
+    </script>
+
+    <div id="request-form" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Request Nanny Services</h2>
+            <form id="nanny-request-form">
+                <input type="text" id="user-name" placeholder="Your Name" required aria-label="Your Name">
+                <input type="email" id="user-email" placeholder="Your Email" required aria-label="Your Email">
+                <input type="tel" id="user-phone" placeholder="Your Phone Number" required aria-label="Your Phone Number">
+                <input type="hidden" id="selected-nanny">
+                <button type="submit" aria-label="Send Request">Send Request</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Bambino Nanny Agency</h3>
+                <p>Trusted childcare solutions for modern families</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../index.html" aria-label="Home">Home</a></li>
+                    <li><a href="about.html" aria-label="About">About</a></li>
+                    <li><a href="nannies.html" aria-label="Nannies">Nannies</a></li>
+                    <li><a href="contact.html" aria-label="Contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@bambinoagency.com</p>
+                <p>Phone: (555) 123-4567</p>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Bambino Nanny Agency. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK with ES modules -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, query, where, limit, orderBy } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics.js";
+
+        // Import Firebase configuration from external file
+        import firebaseConfig from '../firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Skip analytics if blocked by ad blockers
+        try {
+            const analytics = getAnalytics(app);
+        } catch (error) {
+            console.warn('Analytics could not be initialized:', error);
+        }
+
+        // Make Firebase services available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseCollection = collection;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseGetDocs = getDocs;
+        window.firebaseQuery = query;
+        window.firebaseWhere = where;
+        window.firebaseLimit = limit;
+        window.firebaseOrderBy = orderBy;
+
+        // Signal that Firebase is ready
+        window.firebaseReady = true;
+        console.log('Firebase modules loaded and ready');
+
+        // Mock data for offline mode
+        const mockNannies = [
+            {
+                id: 'mock1',
+                name: 'Jane Smith',
+                experience: 5,
+                availability: 'Full-time',
+                languages: ['English', 'Spanish'],
+                bio: 'Experienced nanny with 5 years of childcare experience.',
+                photo: '../images/nanny1.jpg'
+            },
+            {
+                id: 'mock2',
+                name: 'Maria Rodriguez',
+                experience: 8,
+                availability: 'Part-time',
+                languages: ['English', 'Spanish', 'French'],
+                bio: 'Loving and caring nanny with 8 years of experience.',
+                photo: '../images/nanny2.jpg'
+            },
+            {
+                id: 'mock3',
+                name: 'Sarah Johnson',
+                experience: 3,
+                availability: 'Weekends Only',
+                languages: ['English'],
+                bio: 'Energetic nanny who loves outdoor activities.',
+                photo: '../images/nanny3.jpg'
+            }
+        ];
+        window.mockNannies = mockNannies;
+
+        // Function to fetch nannies
+        async function fetchNannies() {
+            try {
+                // Check if Firebase is ready
+                if (!window.firebaseReady) {
+                    throw new Error('Firebase is not initialized');
+                }
+
+                const nanniesContainer = document.querySelector('.nannies-grid');
+                if (!nanniesContainer) {
+                    console.error('Nannies container not found');
+                    return;
+                }
+
+                // Clear existing nannies
+                nanniesContainer.innerHTML = '<p>Loading nannies...</p>';
+
+                try {
+                    // Try to fetch from Firebase
+                    const nanniesCollection = window.firebaseCollection(window.firebaseDb, 'nannies');
+                    const snapshot = await window.firebaseGetDocs(nanniesCollection);
+
+                    if (snapshot.empty) {
+                        console.log('No nannies found in Firebase, using mock data');
+                        displayNannies(window.mockNannies);
+                        return;
+                    }
+
+                    const nannies = [];
+                    snapshot.forEach(doc => {
+                        nannies.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    displayNannies(nannies);
+                } catch (error) {
+                    console.error('Error fetching nannies from Firebase:', error);
+                    console.log('Using mock data instead');
+                    displayNannies(window.mockNannies);
+                }
+            } catch (error) {
+                console.error('Error in fetchNannies:', error);
+                displayNannies(window.mockNannies);
+            }
+        }
+
+        // Function to display nannies
+        function displayNannies(nannies) {
+            const nanniesContainer = document.querySelector('.nannies-grid');
+            if (!nanniesContainer) {
+                console.error('Nannies container not found');
+                return;
+            }
+
+            if (nannies.length === 0) {
+                nanniesContainer.innerHTML = '<p>No nannies found.</p>';
+                return;
+            }
+
+            nanniesContainer.innerHTML = '';
+
+            nannies.forEach(nanny => {
+                const nannyCard = document.createElement('div');
+                nannyCard.className = 'nanny-card';
+
+                nannyCard.innerHTML = `
+                    <div class="nanny-image">
+                        <img src="${nanny.photo || '../images/default-nanny.jpg'}" alt="${nanny.name}">
+                    </div>
+                    <div class="nanny-info">
+                        <h3>${nanny.name}</h3>
+                        <p><strong>Experience:</strong> ${nanny.experience} years</p>
+                        <p><strong>Availability:</strong> ${nanny.availability}</p>
+                        <p><strong>Languages:</strong> ${Array.isArray(nanny.languages) ? nanny.languages.join(', ') : nanny.languages}</p>
+                        <p>${nanny.bio}</p>
+                        <a href="contact.html?nanny=${nanny.id}" class="btn">Request This Nanny</a>
+                    </div>
+                `;
+
+                nanniesContainer.appendChild(nannyCard);
+            });
+        }
+
+        // Initialize filters
+        function initFilters() {
+            const experienceFilter = document.getElementById('experience-filter');
+            const languageFilter = document.getElementById('language-filter');
+            const availabilityFilter = document.getElementById('availability-filter');
+
+            if (experienceFilter) {
+                experienceFilter.addEventListener('change', applyFilters);
+            }
+
+            if (languageFilter) {
+                languageFilter.addEventListener('change', applyFilters);
+            }
+
+            if (availabilityFilter) {
+                availabilityFilter.addEventListener('change', applyFilters);
+            }
+        }
+
+        // Apply filters
+        async function applyFilters() {
+            const experienceFilter = document.getElementById('experience-filter');
+            const languageFilter = document.getElementById('language-filter');
+            const availabilityFilter = document.getElementById('availability-filter');
+
+            let filteredNannies = [];
+
+            try {
+                // Try to fetch from Firebase with filters
+                if (window.firebaseReady) {
+                    const nanniesCollection = window.firebaseCollection(window.firebaseDb, 'nannies');
+                    let queryRef = nanniesCollection;
+
+                    // Apply filters if selected
+                    // Note: This is a simplified version. In a real app, you'd need more complex query logic
+                    try {
+                        const snapshot = await window.firebaseGetDocs(queryRef);
+
+                        if (snapshot.empty) {
+                            console.log('No nannies found with filters, using mock data');
+                            filteredNannies = window.mockNannies;
+                        } else {
+                            filteredNannies = [];
+                            snapshot.forEach(doc => {
+                                filteredNannies.push({ id: doc.id, ...doc.data() });
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error fetching filtered nannies:', error);
+                        filteredNannies = window.mockNannies;
+                    }
+                } else {
+                    filteredNannies = window.mockNannies;
+                }
+
+                // Apply client-side filtering
+                if (experienceFilter && experienceFilter.value) {
+                    const [min, max] = experienceFilter.value.split('-');
+                    if (max) {
+                        filteredNannies = filteredNannies.filter(nanny =>
+                            nanny.experience >= parseInt(min) && nanny.experience <= parseInt(max));
+                    } else {
+                        // Handle 7+ case
+                        const minExp = parseInt(min.replace('+', ''));
+                        filteredNannies = filteredNannies.filter(nanny => nanny.experience >= minExp);
+                    }
+                }
+
+                if (languageFilter && languageFilter.value) {
+                    const language = languageFilter.value.toLowerCase();
+                    filteredNannies = filteredNannies.filter(nanny => {
+                        if (Array.isArray(nanny.languages)) {
+                            return nanny.languages.some(lang => lang.toLowerCase() === language);
+                        } else if (typeof nanny.languages === 'string') {
+                            return nanny.languages.toLowerCase().includes(language);
+                        }
+                        return false;
+                    });
+                }
+
+                if (availabilityFilter && availabilityFilter.value) {
+                    filteredNannies = filteredNannies.filter(nanny =>
+                        nanny.availability.toLowerCase() === availabilityFilter.value.toLowerCase());
+                }
+
+                displayNannies(filteredNannies);
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                displayNannies(window.mockNannies);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing nannies page');
+            fetchNannies();
+            initFilters();
+        });
+    </script>
+
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js" integrity="sha512-yFjZbTYRCJodnuyGlsKamNE/LlEaEAxSUDe5+u61mV8zzqJVFOH7TnULE2/PP/l5vKWpUNnF4VGVkXh3MjgLsg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Main JS -->
+    <script src="../app.js"></script>
+</body>
+</html>
